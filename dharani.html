@@ -1,0 +1,321 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aids Group — Attendance App</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#a7f6fc; /* deep navy */
+      --card:#f3fa8d;
+      --accent:#ff6b6b; /* coral */
+      --accent2:#f7f57b; /* mint */
+      --muted:#000000;
+      --glass: rgba(0, 0, 0, 0.03);
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(135deg,var(--bg),#dffbfd);color:#0d0d0e;min-height:100vh}
+    header{display:flex;align-items:center;gap:16px;padding:18px 28px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo svg{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:8px}
+    h1{margin:0;font-size:20px}
+    nav{margin-left:auto;display:flex;gap:10px}
+    .tab{background:var(--glass);padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--muted);}
+    .tab.active{background:linear-gradient(90deg,rgba(112, 247, 229, 0.04),rgba(255,255,255,0.01));color:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.5)}
+    main{padding:24px}
+    .card{background:linear-gradient(180deg,rgba(65, 201, 183, 0.02),transparent);padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6);}/* Layout */
+.grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
+.full{grid-column:1/-1}
+
+form{display:flex;flex-direction:column;gap:10px}
+label{font-size:13px;color:var(--muted)}
+input,select,textarea{padding:10px;border-radius:10px;background:#071428;border:1px solid rgba(255,255,255,0.03);color:#dfe9f5}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{padding:10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:14px}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+button{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;padding:10px 12px;border-radius:10px;color:#06121a;cursor:pointer;font-weight:600}
+.muted-btn{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+.danger{background:#ff6b6b;color:white}
+.small{padding:6px 8px;font-size:13px}
+
+/* responsive */
+@media (max-width:900px){.grid{grid-template-columns:1fr}.logo h1{display:none}.tab{padding:6px 8px}}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <!-- Inline SVG logo -->
+      <svg viewBox="0 0 100 100" xmlns="download (2).jpeg" role="download (2).jpeg" aria-label="Aids Group logo">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1">
+            <stop offset="0" stop-color="#ff6b6b"/>
+            <stop offset="1" stop-color="#6bf0c8"/>
+          </linearGradient>
+        </defs>
+        <rect rx="18" width="100" height="100" fill="url(#g1)"/>
+        <g transform="translate(18,18) scale(0.64)" fill="#081124">
+          <path d="M50 10c-11 0-20 9-20 20 0 22 20 40 20 40s20-18 20-40c0-11-9-20-20-20z"/>
+          <circle cx="50" cy="30" r="6" fill="#6bf0c8"/>
+        </g>
+      </svg>
+      <div>
+        <h1>SRI GANESH COLLEGE OF ENGINEERING AND TECHNOLOGY(SGCET)</h1>
+        <div style="font-size:12px;color:var(--muted)">AI/DS GROUP</div>
+      </div>
+    </div><nav>
+  <div class="tab active" data-page="attendance">Student Attendent Page</div>
+  <div class="tab" data-page="personal">Student Personal Details</div>
+  <div class="tab" data-page="sir">Class Sir Details</div>
+</nav>
+
+  </header>  <main>
+    <div class="grid">
+      <section id="attendance" class="card full">
+        <h2>Student Attendent Page</h2>
+        <div style="margin-top:8px;color:var(--muted)">MR.M.karmugilan sir</div>
+        <div class="controls" style="margin-top:12px">
+          <button id="addSample" class="small muted-btn"></button>
+          <button id="refresh" class="small muted-btn">Refresh List</button>
+          <button id="generatePdf" class="small">Generate PDF</button>
+          <button id="openWhatsApp" class="small">Open WhatsApp (prefill)</button>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <table id="attendanceTable">
+            <thead>
+              <tr><th>Student name</th><th>Group</th><th>Present</th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section><aside class="card">
+    <h3>Summary</h3>
+    <div id="summary" style="font-size:14px;margin-top:8px;color:var(--muted)">No data yet.</div>
+  </aside>
+
+  <section id="personal" class="card full" style="display:none">
+    <h2>Student Personal Details</h2>
+    <div style="color:var(--muted);margin-bottom:10px"></div>
+    <form id="studentForm">
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">
+          <label>Name</label>
+          <input id="s_name" required />
+        </div>
+        <div style="width:140px">
+          <label>Group</label>
+          <input id="s_group" />
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <div style="flex:1">
+          <label>Phone number</label>
+          <input id="s_phone" />
+        </div>
+        <div style="flex:1">
+          <label>Address</label>
+          <input id="s_address" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button type="submit">Save student</button>
+        <button type="button" id="clearForm" class="muted-btn">Clear</button>
+      </div>
+    </form>
+
+    <div style="margin-top:14px">
+      <h3>Saved Students</h3>
+      <table id="studentsList">
+        <thead><tr><th>Name</th><th>Group</th><th>Phone</th><th>Address</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sir" class="card full" style="display:none">
+    <h2>Sir Details</h2>
+    <div style="color:var(--muted);margin-bottom:10px">Add or update the class sir information.</div>
+    <form id="sirForm">
+      <label>Sir name</label>
+      <input id="sir_name" />
+      <label style="margin-top:8px">Phone number</label>
+      <input id="sir_phone" />
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button type="submit">Save Sir details</button>
+        <button type="button" id="clearSir" class="muted-btn">Clear</button>
+      </div>
+    </form>
+    <div style="margin-top:12px;color:var(--muted)" id="sirShow">No sir saved.</div>
+  </section>
+
+</div>
+
+  </main>  <script>
+    // Helper localStorage keys
+    const LS_STUDENTS = 'aids_students_v1';
+    const LS_SIR = 'aids_sir_v1';
+
+    // Page tabs
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const page = t.dataset.page;
+      document.querySelectorAll('main .card.full, main section').forEach(s=>{
+        if(s.id===page) s.style.display='block'; else if(['attendance','personal','sir'].includes(s.id)) s.style.display='none';
+      });
+      if(page==='attendance') renderAttendance();
+      if(page==='personal') renderStudentsList();
+      if(page==='sir') renderSir();
+    }));
+
+    function loadStudents(){
+      try{ return JSON.parse(localStorage.getItem(LS_STUDENTS) || '[]'); }catch(e){return []}
+    }
+    function saveStudents(list){ localStorage.setItem(LS_STUDENTS, JSON.stringify(list)); }
+    function loadSir(){ try{return JSON.parse(localStorage.getItem(LS_SIR) || 'null')}catch(e){return null}}
+    function saveSir(s){ localStorage.setItem(LS_SIR, JSON.stringify(s)); }
+
+    // Attendance rendering
+    function renderAttendance(){
+      const tbody = document.querySelector('#attendanceTable tbody'); tbody.innerHTML='';
+      const students = loadStudents();
+      if(students.length===0){ tbody.innerHTML='<tr><td colspan="4" style="color:var(--muted)">No students. Add from "Student Personal Details".</td></tr>'; updateSummary(); return; }
+      students.forEach((s,idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(s.name||'—')}</td>
+          <td>${escapeHtml(s.group||'—')}</td>
+          <td><input type="checkbox" data-idx="${idx}" class="presentChk" ${s.present? 'checked':''}></td>
+          <td><input type="checkbox" data-idx="${idx}" class="submittedChk" ${s.submitted? 'checked':''}></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      // attach listeners
+      document.querySelectorAll('.presentChk').forEach(ch => ch.addEventListener('change', e=>{
+        const i = +e.target.dataset.idx; const students = loadStudents(); students[i].present = e.target.checked; saveStudents(students); updateSummary();
+      }));
+      document.querySelectorAll('.submittedChk').forEach(ch => ch.addEventListener('change', e=>{
+        const i = +e.target.dataset.idx; const students = loadStudents(); students[i].submitted = e.target.checked; saveStudents(students); updateSummary();
+      }));
+      updateSummary();
+    }
+
+    function updateSummary(){
+      const students = loadStudents(); const total = students.length;
+      const present = students.filter(s=>s.present).length;
+      const absent = total - present;
+      const submitted = students.filter(s=>s.submitted).length;
+      document.getElementById('summary').innerHTML = `Total: ${total}<br>Present: ${present}<br>Absent: ${absent}<br>Submitted: ${submitted}`;
+    }
+
+    // Students page
+    document.getElementById('studentForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const name = document.getElementById('s_name').value.trim();
+      if(!name) return alert('Please enter a name');
+      const students = loadStudents();
+      // allow editing if editingId is set
+      const editingId = document.getElementById('studentForm').dataset.editing;
+      const payload = {name, group: document.getElementById('s_group').value.trim(), phone: document.getElementById('s_phone').value.trim(), address: document.getElementById('s_address').value.trim(), present:false, submitted:false};
+      if(editingId!==undefined && editingId!==''){
+        students[+editingId] = Object.assign(students[+editingId], payload);
+        document.getElementById('studentForm').dataset.editing='';
+      } else {
+        students.push(payload);
+      }
+      saveStudents(students);
+      renderStudentsList();
+      document.getElementById('studentForm').reset();
+    });
+    document.getElementById('clearForm').addEventListener('click', ()=>{document.getElementById('studentForm').reset();document.getElementById('studentForm').dataset.editing='';});
+
+    function renderStudentsList(){
+      const tbody = document.querySelector('#studentsList tbody'); tbody.innerHTML='';
+      const students = loadStudents();
+      if(students.length===0){ tbody.innerHTML='<tr><td colspan="5" style="color:var(--muted)">No students saved</td></tr>'; return; }
+      students.forEach((s,idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.group||'')}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.address||'')}</td><td><button class="small" data-edit="${idx}">Edit</button> <button class="small muted-btn" data-del="${idx}">Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click', e=>{
+        const i = +e.target.dataset.edit; const students = loadStudents(); const s = students[i];
+        document.getElementById('s_name').value = s.name; document.getElementById('s_group').value = s.group||''; document.getElementById('s_phone').value = s.phone||''; document.getElementById('s_address').value = s.address||'';
+        document.getElementById('studentForm').dataset.editing = i;
+        // switch tab to personal (already)
+      }));
+      tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', e=>{
+        if(!confirm('Delete student?')) return; const i = +e.target.dataset.del; const students = loadStudents(); students.splice(i,1); saveStudents(students); renderStudentsList(); renderAttendance();
+      }));
+    }
+
+    // Sir form
+    document.getElementById('sirForm').addEventListener('submit', e=>{ e.preventDefault(); const s = {name:document.getElementById('sir_name').value.trim(), phone:document.getElementById('sir_phone').value.trim()}; saveSir(s); renderSir(); });
+    document.getElementById('clearSir').addEventListener('click', ()=>{ document.getElementById('sir_name').value=''; document.getElementById('sir_phone').value=''; });
+    function renderSir(){ const s = loadSir(); document.getElementById('sirShow').textContent = s? `Sir: ${s.name || '-'} — ${s.phone || '-'}` : 'No sir saved.'; }
+
+    // Utility
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[c]); }
+
+    // Buttons
+    document.getElementById('addSample').addEventListener('click', ()=>{
+      const sample = [ {name:'Aman',group:'A'}, {name:'Bina',group:'A'}, {name:'Chetan',group:'B'} ];
+      const students = loadStudents(); sample.forEach(s=>students.push(Object.assign(s,{phone:'',address:'',present:false,submitted:false}))); saveStudents(students); renderStudentsList(); renderAttendance();
+    });
+    document.getElementById('refresh').addEventListener('click', ()=>renderAttendance());
+
+    // Generate PDF using jsPDF
+    async function generatePdfBlob(){
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const students = loadStudents();
+      const sir = loadSir();
+      doc.setFontSize(16); doc.text('Aids Group — Attendance',14,18);
+      doc.setFontSize(11); doc.text(`Date: ${new Date().toLocaleString()}`,14,26);
+      if(sir) doc.text(`Sir: ${sir.name}  ${sir.phone||''}`,14,34);
+      const startY = 42;
+      doc.setFontSize(10);
+      doc.text('Name',14,startY); doc.text('Group',84,startY); doc.text('Present list',114,startY);
+      let y = startY + 6;
+      students.forEach(s=>{
+        doc.text(String(s.name||''),14,y);
+        doc.text(String(s.group||''),84,y);
+        doc.text(s.present? 'present':'absent',114,y);
+        y+=6; if(y>270){ doc.addPage(); y=20; }
+      });
+      const pdfBlob = doc.output('blob');
+      return pdfBlob;
+    }
+
+    document.getElementById('generatePdf').addEventListener('click', async ()=>{
+      const blob = await generatePdfBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `attendance_${(new Date()).toISOString().slice(0,19).replace(/[:T]/g,'_')}.pdf`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      alert('PDF generated and downloaded. To send over WhatsApp, use the "Open WhatsApp" button and attach the downloaded PDF manually.');
+    });
+
+    document.getElementById('openWhatsApp').addEventListener('click', ()=>{
+      const students = loadStudents(); const present = students.filter(s=>s.present).map(s=>s.name).join(', ') || '-';
+      const absent = students.filter(s=>!s.present).map(s=>s.name).join(', ') || '-';
+      const sir = loadSir();
+      const msg = `Attendance%20Report%0AGroup:%20Aids%20Group%0ADate:%20${encodeURIComponent(new Date().toLocaleString())}%0ASir:%20${encodeURIComponent(sir?sir.name:'-')}%0A%0APresent:%20${encodeURIComponent(present)}%0AAbsent:%20${encodeURIComponent(absent)}%0A%0A(Attach%20the%20generated%20PDF%20manually)`;
+      // open WhatsApp web
+      const wa = `https://wa.me/?text=${msg}`;
+      window.open(wa,'_blank');
+    });
+
+    // initial render
+    renderAttendance(); renderStudentsList(); renderSir();
+
+    // small autosave: if user navigates away while editing, keep draft
+    window.addEventListener('beforeunload', ()=>{});
+  </script></body>
+  <h2>CREATE BY :</h2>
+  <h1>IDEA BY: DHARANI DHARAN,SIVARANJANI</h1>
+  <h1>DESIGN BY: LOKESHWAR,JAYA SANKARI</h1>
+  <h1>STYLE BY: PRAVEEN KUMAR</h1>
+</html>
