@@ -8,13 +8,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root{
-      --bg:#62ffa9;/* deep navy */
-      --card:#f3fa8d;
-      --accent:#ff6b6b; /* coral */
-      --accent2:#fcff57; /* mint */
-      --muted:#fcff3f;
-      --glass: rgba(0, 0, 0, 0.03);
-      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+     body{
+        margin:0;
+        font-family: Arial;
+        background: linear-gradient(135deg,#ff6ec7,#5ab9ea,#7cffcb);
+        background-size: 400% 400%;
+        animation: gradientBG 10s ease infinite;
+        color:#fff;
+    }
+    @keyframes gradientBG {
+        0%{background-position:0% 50%;}
+        50%{background-position:100% 50%;}
+        100%{background-position:0% 50%;}
+    }
+
     }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(135deg,var(--bg),#dffbfd);color:#0d0d0e;min-height:100vh}
